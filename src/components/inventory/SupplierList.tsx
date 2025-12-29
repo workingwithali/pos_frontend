@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import {
   Table,
@@ -153,7 +154,7 @@ export function SupplierList() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2 text-sm max-w-[200px]">
+                  <div className="flex items-center gap-2 text-sm max-w-50">
                     <MapPin className="h-3 w-3 text-muted-foreground shrink-0" />
                     <span className="truncate">{supplier.address}</span>
                   </div>

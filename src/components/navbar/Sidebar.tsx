@@ -12,8 +12,7 @@ import {
   FileText,
   DollarSign,
   UserCircle,
-  Truck,
-  RotateCcw,
+  Receipt,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -23,13 +22,12 @@ const navItems = [
   { name: "Dashboard", icon: Home, path: "/dashboard" },
   { name: "POS / Sales", icon: ShoppingCart, path: "/pos" },
   { name: "Products", icon: Package, path: "/products" },
-  { name: "Purchases", icon: FileText, path: "/purchases" },
+  { name: "Inventory", icon: FileText, path: "/inventory" },
   { name: "Customers", icon: Users, path: "/customers" },
-  { name: "Suppliers", icon: Truck, path: "/suppliers" },
-  { name: "Returns & Exchange", icon: RotateCcw, path: "/returns-exchange" },
-  { name: "Reports", icon: TrendingUp, path: "/reports" },
+  { name: "Sales", icon: TrendingUp, path: "/sales" },
   { name: "Expenses", icon: DollarSign, path: "/expenses" },
-  { name: "Users", icon: UserCircle, path: "/users" },
+  { name: "Staff", icon: UserCircle, path: "/staff" },
+  { name: "Billing", icon: Receipt, path: "/billing" },
   { name: "Settings", icon: Settings, path: "/settings" },
 ];
 
