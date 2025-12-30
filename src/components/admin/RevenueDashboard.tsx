@@ -115,7 +115,7 @@ export function RevenueDashboard() {
             <CardDescription>Monthly revenue and MRR over time</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px]">
+            <div className="h-75">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={revenueData}>
                   <defs>
@@ -137,7 +137,7 @@ export function RevenueDashboard() {
                       border: "1px solid hsl(var(--border))",
                       borderRadius: "8px",
                     }}
-                    formatter={(value: number) => [`$${value.toLocaleString()}`, ""]}
+                    formatter={(value: number | undefined) => [`$${(value ?? 0).toLocaleString()}`, ""]}
                   />
                   <Area
                     type="monotone"
@@ -167,7 +167,7 @@ export function RevenueDashboard() {
             <CardDescription>Tenants by subscription plan</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[250px]">
+            <div className="h-62.5">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -210,7 +210,7 @@ export function RevenueDashboard() {
             <CardDescription>Monthly revenue breakdown</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[250px]">
+            <div className="h-62.5">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={revenueByPlan} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" horizontal={false} />
@@ -222,7 +222,7 @@ export function RevenueDashboard() {
                       border: "1px solid hsl(var(--border))",
                       borderRadius: "8px",
                     }}
-                    formatter={(value: number) => [`$${value.toLocaleString()}`, "Revenue"]}
+                    formatter={(value: number|undefined) => [`$${(value ?? 0).toLocaleString()}`, "Revenue"]}
                   />
                   <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
                 </BarChart>

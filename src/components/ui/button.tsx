@@ -23,11 +23,11 @@ const buttonVariants = cva(
           "text-primary underline-offset-4 hover:underline",
         // Premium variants for landing page
         hero: 
-          "bg-gradient-primary text-primary-foreground shadow-elevated hover:shadow-glow hover:scale-[1.02] active:scale-[0.98]",
+          "bg-primary text-primary-foreground shadow-elevated hover:shadow-glow hover:scale-[1.02] active:scale-[0.98]",
         heroOutline:
           "border-2 border-primary/20 bg-background/80 backdrop-blur-sm text-foreground hover:bg-primary/5 hover:border-primary/40",
         accent:
-          "bg-gradient-accent text-accent-foreground shadow-elevated hover:shadow-glow hover:scale-[1.02] active:scale-[0.98]",
+          "bg-accent text-accent-foreground shadow-elevated hover:shadow-glow hover:scale-[1.02] active:scale-[0.98]",
         // Soft variants
         soft:
           "bg-primary/10 text-primary hover:bg-primary/20",
