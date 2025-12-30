@@ -16,8 +16,8 @@ const topProducts = [
 ];
 
 const categoryData = [
-  { name: "Electronics", value: 35, color: "hsl(var(--primary))" },
-  { name: "Accessories", value: 28, color: "hsl(var(--accent))" },
+  { name: "Electronics", value: 35, color: "#3b82f6" },
+  { name: "Accessories", value: 28, color: "#8b5cf6" },
   { name: "Audio", value: 22, color: "#10b981" },
   { name: "Cables", value: 15, color: "#f59e0b" },
 ];
@@ -26,7 +26,7 @@ export function TopProductsReport() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-card border-border">
+        <Card variant="bordered">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-yellow-500/20 rounded-lg">
@@ -40,7 +40,7 @@ export function TopProductsReport() {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-card border-border">
+        <Card variant="bordered">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-emerald-500/20 rounded-lg">
@@ -54,7 +54,7 @@ export function TopProductsReport() {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-card border-border">
+        <Card variant="bordered">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-primary/20 rounded-lg">
@@ -71,7 +71,7 @@ export function TopProductsReport() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 bg-card border-border">
+        <Card variant="bordered" className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Top Selling Products</CardTitle>
           </CardHeader>
@@ -79,7 +79,7 @@ export function TopProductsReport() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
-                  <TableHead className="w-[60px]">Rank</TableHead>
+                  <TableHead className="w-15">Rank</TableHead>
                   <TableHead>Product</TableHead>
                   <TableHead>SKU</TableHead>
                   <TableHead className="text-right">Units</TableHead>
@@ -115,12 +115,12 @@ export function TopProductsReport() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card border-border">
+        <Card variant="bordered">
           <CardHeader>
             <CardTitle>Sales by Category</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[250px]">
+            <div className="h-62.5">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie

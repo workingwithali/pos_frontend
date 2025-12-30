@@ -30,7 +30,7 @@ export function ProfitLossChart() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {summaryStats.map((stat) => (
-          <Card key={stat.title} className="bg-card border-border">
+          <Card key={stat.title} variant="bordered">
             <CardContent className="p-4">
               <div className="flex items-start justify-between">
                 <div>
@@ -50,7 +50,7 @@ export function ProfitLossChart() {
         ))}
       </div>
 
-      <Card className="bg-card border-border">
+      <Card variant="bordered">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Revenue vs Expenses</CardTitle>
           <div className="flex items-center gap-4 text-sm">
@@ -65,7 +65,7 @@ export function ProfitLossChart() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="h-[350px]">
+          <div className="h-87.5 ">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -77,7 +77,7 @@ export function ProfitLossChart() {
                     border: "1px solid hsl(var(--border))",
                     borderRadius: "8px",
                   }}
-                  formatter={(value: number) => [`$${value.toLocaleString()}`, ""]}
+                  formatter={(value: number | undefined) => [`$${value?.toLocaleString() ?? "N/A"}`, ""]}
                   labelStyle={{ color: "hsl(var(--foreground))" }}
                 />
                 <Area
@@ -90,8 +90,8 @@ export function ProfitLossChart() {
                 <Area
                   type="monotone"
                   dataKey="expenses"
-                  stroke="hsl(var(--destructive))"
-                  fill="hsl(var(--destructive) / 0.2)"
+                  stroke="#ef4444"
+                  fill="#ef444420"
                   strokeWidth={2}
                 />
               </AreaChart>
@@ -101,12 +101,12 @@ export function ProfitLossChart() {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="bg-card border-border">
+        <Card variant="bordered">
           <CardHeader>
             <CardTitle>Monthly Profit Trend</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[250px]">
+            <div className="h-62.5">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -118,14 +118,14 @@ export function ProfitLossChart() {
                       border: "1px solid hsl(var(--border))",
                       borderRadius: "8px",
                     }}
-                    formatter={(value: number) => [`$${value.toLocaleString()}`, "Profit"]}
+                    formatter={(value: number | undefined) => [`$${value?.toLocaleString() ?? "N/A"}`, "Profit"]}
                   />
                   <Line
                     type="monotone"
                     dataKey="profit"
-                    stroke="hsl(var(--primary))"
+                    stroke="#3b82f6"
                     strokeWidth={3}
-                    dot={{ fill: "hsl(var(--primary))", strokeWidth: 2 }}
+                    dot={{ fill: "#3b82f6", strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -133,7 +133,7 @@ export function ProfitLossChart() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card border-border">
+        <Card variant="bordered">
           <CardHeader>
             <CardTitle>Profit Margin Analysis</CardTitle>
           </CardHeader>

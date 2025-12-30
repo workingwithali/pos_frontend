@@ -24,7 +24,7 @@ export function DailySalesReport() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => (
-          <Card key={stat.title} className="bg-card border-border">
+          <Card key={stat.title} variant="bordered">
             <CardContent className="p-4">
               <div className="flex items-start justify-between">
                 <div>
@@ -50,12 +50,12 @@ export function DailySalesReport() {
         ))}
       </div>
 
-      <Card className="bg-card border-border">
+      <Card variant="bordered">
         <CardHeader>
           <CardTitle>Weekly Sales Overview</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[300px]">
+          <div className="h-75">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={dailyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -69,7 +69,7 @@ export function DailySalesReport() {
                   }}
                   labelStyle={{ color: "hsl(var(--foreground))" }}
                 />
-                <Bar dataKey="sales" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="sales" fill="#008767" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -77,7 +77,7 @@ export function DailySalesReport() {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="bg-card border-border">
+        <Card variant="bordered">
           <CardHeader>
             <CardTitle className="text-base">Sales by Payment Method</CardTitle>
           </CardHeader>
@@ -103,7 +103,7 @@ export function DailySalesReport() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card border-border">
+        <Card variant="bordered">
           <CardHeader>
             <CardTitle className="text-base">Sales by Branch</CardTitle>
           </CardHeader>

@@ -30,8 +30,8 @@ const mockExpenses: Expense[] = [
 ];
 
 const categoryData = [
-  { name: "Salaries", value: 12000, color: "hsl(var(--primary))" },
-  { name: "Inventory", value: 8500, color: "hsl(var(--accent))" },
+  { name: "Salaries", value: 12000, color: "#03fc4e" },
+  { name: "Inventory", value: 8500, color: "#3b82f6" },
   { name: "Rent", value: 5000, color: "#10b981" },
   { name: "Marketing", value: 1200, color: "#f59e0b" },
   { name: "Utilities", value: 600, color: "#8b5cf6" },
@@ -66,7 +66,7 @@ export function ExpensesReport() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-card border-border">
+        <Card variant="bordered" >
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-muted rounded-lg">
@@ -79,7 +79,7 @@ export function ExpensesReport() {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-card border-border">
+        <Card variant="bordered">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-emerald-500/20 rounded-lg">
@@ -92,7 +92,7 @@ export function ExpensesReport() {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-card border-border">
+        <Card variant="bordered">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-yellow-500/20 rounded-lg">
@@ -105,7 +105,7 @@ export function ExpensesReport() {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-card border-border">
+        <Card variant="bordered">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/20 rounded-lg">
@@ -121,7 +121,7 @@ export function ExpensesReport() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 bg-card border-border">
+        <Card variant="bordered" className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Expense Transactions</CardTitle>
             <Button size="sm">
@@ -141,7 +141,7 @@ export function ExpensesReport() {
                 />
               </div>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="w-[150px]">
+                <SelectTrigger className="w-37.5">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -186,12 +186,12 @@ export function ExpensesReport() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card border-border">
+        <Card variant="bordered">
           <CardHeader>
             <CardTitle>Expenses by Category</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[200px]">
+            <div className="h-50">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -213,7 +213,7 @@ export function ExpensesReport() {
                       border: "1px solid hsl(var(--border))",
                       borderRadius: "8px",
                     }}
-                    formatter={(value: number) => [`$${value.toLocaleString()}`, ""]}
+                    formatter={(value: number | undefined) => value !== undefined ? [`$${value.toLocaleString()}`, ""] : ["", ""]}
                   />
                 </PieChart>
               </ResponsiveContainer>

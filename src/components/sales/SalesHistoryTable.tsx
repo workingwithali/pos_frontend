@@ -61,7 +61,7 @@ export function SalesHistoryTable() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="relative flex-1 min-w-50">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search invoice or customer..."
@@ -76,18 +76,18 @@ export function SalesHistoryTable() {
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="w-[140px]"
+            className="w-35"
           />
           <span className="text-muted-foreground">to</span>
           <Input
             type="date"
             value={dateTo}
             onChange={(e) => setDateTo(e.target.value)}
-            className="w-[140px]"
+            className="w-35"
           />
         </div>
         <Select value={branch} onValueChange={setBranch}>
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-37.5">
             <SelectValue placeholder="Branch" />
           </SelectTrigger>
           <SelectContent>
@@ -97,7 +97,7 @@ export function SalesHistoryTable() {
           </SelectContent>
         </Select>
         <Select value={staff} onValueChange={setStaff}>
-          <SelectTrigger className="w-[130px]">
+          <SelectTrigger className="w-32.5">
             <SelectValue placeholder="Staff" />
           </SelectTrigger>
           <SelectContent>
