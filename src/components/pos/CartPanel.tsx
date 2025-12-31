@@ -1,4 +1,4 @@
-import { Minus, Plus, Trash2, Percent } from "lucide-react";
+import { Minus, Plus, Trash2, Percent, Phone, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -21,6 +21,12 @@ interface CartPanelProps {
   onPayNow: () => void;
   discount: number;
   onDiscountChange: (discount: number) => void;
+
+  // Customer props
+  customerPhone: string;
+  customerName?: string;
+  onCustomerPhoneChange: (phone: string) => void;
+  onClearCustomer: () => void;
 }
 
 export function CartPanel({
@@ -32,6 +38,10 @@ export function CartPanel({
   onPayNow,
   discount,
   onDiscountChange,
+  customerPhone,
+  customerName,
+  onCustomerPhoneChange,
+  onClearCustomer,
 }: CartPanelProps) {
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const discountAmount = (subtotal * discount) / 100;
@@ -45,6 +55,33 @@ export function CartPanel({
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-semibold text-lg">Current Order</h2>
         <span className="text-sm text-muted-foreground">{items.length} items</span>
+      </div>
+
+      {/* Customer Section */}
+      <div className="mb-4 space-y-2">
+        <div className="flex items-center gap-2">
+          <Phone className="h-4 w-4 text-muted-foreground" />
+          <Input
+            type="tel"
+            placeholder="Customer phone number"
+            value={customerPhone}
+            onChange={(e) => onCustomerPhoneChange(e.target.value)}
+            className="flex-1"
+          />
+          {customerPhone && (
+            <Button variant="ghost" size="iconSm" onClick={onClearCustomer}>
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        {customerName && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <User className="h-4 w-4" />
+            <span>
+              Customer: <span className="font-medium">{customerName}</span>
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Cart Items */}

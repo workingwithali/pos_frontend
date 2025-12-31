@@ -21,6 +21,7 @@ interface ReceiptPreviewProps {
   paymentMethod: string;
   amountPaid: number;
   change: number;
+  customerName?: string; // added
   onNewSale: () => void;
 }
 
@@ -35,6 +36,7 @@ export function ReceiptPreview({
   paymentMethod,
   amountPaid,
   change,
+  customerName,
   onNewSale,
 }: ReceiptPreviewProps) {
   const receiptNumber = `RCP-${Date.now().toString().slice(-8)}`;
@@ -57,6 +59,11 @@ export function ReceiptPreview({
             <p className="text-muted-foreground">123 Business Street</p>
             <p className="text-muted-foreground">City, State 12345</p>
             <p className="text-muted-foreground">Tel: (555) 123-4567</p>
+            {customerName && (
+              <p className="text-muted-foreground mt-1">
+                Customer: <span className="font-medium">{customerName}</span>
+              </p>
+            )}
           </div>
 
           <Separator />
@@ -76,7 +83,9 @@ export function ReceiptPreview({
                 <span className="text-foreground">
                   {item.quantity}x {item.name}
                 </span>
-                <span className="text-foreground">${(item.price * item.quantity).toFixed(2)}</span>
+                <span className="text-foreground">
+                  ${(item.price * item.quantity).toFixed(2)}
+                </span>
               </div>
             ))}
           </div>
@@ -136,7 +145,7 @@ export function ReceiptPreview({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 mt-2">
           <Button variant="outline" className="flex-1">
             <Printer className="h-4 w-4 mr-2" />
             Print
@@ -146,7 +155,7 @@ export function ReceiptPreview({
             Email
           </Button>
         </div>
-        <Button variant="hero" className="w-full" onClick={onNewSale}>
+        <Button variant="hero" className="w-full mt-2" onClick={onNewSale}>
           Start New Sale
         </Button>
       </DialogContent>

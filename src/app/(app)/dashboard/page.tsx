@@ -1,12 +1,12 @@
 "use client";
-import  Link  from "next/link";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  ShoppingCart, 
-  BarChart3, 
-  Package, 
-  Users, 
+import {
+  ShoppingCart,
+  BarChart3,
+  Package,
+  Users,
   Settings,
   Plus,
   TrendingUp,
@@ -45,6 +45,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useTheme } from "next-themes";
 
 // Revenue data for area chart
 const revenueData = [
@@ -68,11 +69,12 @@ const bestSellingData = [
 
 // Category distribution data
 const categoryData = [
-  { name: "Beverages", value: 45, color: "primary" },
-  { name: "Food", value: 30, color: "hsl(var(--accent))" },
-  { name: "Snacks", value: 15, color: "hsl(var(--success))" },
-  { name: "Others", value: 10, color: "hsl(var(--muted-foreground))" },
+  { name: "Beverages", value: 45, color: "#22c55e" },
+  { name: "Food", value: 30, color: "#3b82f6" },
+  { name: "Snacks", value: 15, color: "#f59e0b" },
+  { name: "Others", value: 10, color: "#6b7280" },
 ];
+
 
 // Stats for summary cards
 const todayStats = {
@@ -108,13 +110,6 @@ const quickActions = [
   { label: "Add Customer", icon: UserPlus, href: "/customers", variant: "outline" as const },
 ];
 
-const navItems = [
-  { label: "Dashboard", icon: BarChart3, href: "/dashboard", active: true },
-  { label: "POS Terminal", icon: ShoppingCart, href: "/pos" },
-  { label: "Products", icon: Package, href: "/products" },
-  { label: "Customers", icon: Users, href: "/customers" },
-  { label: "Settings", icon: Settings, href: "/settings" },
-];
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -129,10 +124,25 @@ const getStatusBadge = (status: string) => {
   }
 };
 
+
 export default function DashboardPage() {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  /* ---------------- THEME SAFE COLORS ---------------- */
+  const colors = {
+    revenue: isDark ? "#22c55e" : "#008767",
+    grid: isDark ? "#1f2937" : "#dadee5",
+    axis: isDark ? "#9ca3af" : "#5d646f",
+    tooltipBg: isDark ? "#020617" : "#ffffff",
+    tooltipBorder: isDark ? "#1e293b" : "#dadee5",
+    tooltipText: isDark ? "#e5e7eb" : "#000000",
+    pie: ["#22c55e", "#3b82f6", "#f59e0b", "#6b7280"],
+  };
+
   return (
     <div className="min-h-screen bg-background flex">
-      
+
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
@@ -179,9 +189,8 @@ export default function DashboardPage() {
                     <p className="text-sm text-muted-foreground font-medium">Today's Sales</p>
                     <div className="flex items-center gap-2">
                       <span className="text-3xl font-bold text-foreground">{todayStats.value}</span>
-                      <span className={`flex items-center text-sm font-medium ${
-                        todayStats.trend === "up" ? "text-success" : "text-destructive"
-                      }`}>
+                      <span className={`flex items-center text-sm font-medium ${todayStats.trend === "up" ? "text-success" : "text-destructive"
+                        }`}>
                         {todayStats.trend === "up" ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                         {todayStats.change}
                       </span>
@@ -212,9 +221,8 @@ export default function DashboardPage() {
                     <p className="text-sm text-muted-foreground font-medium">This Month</p>
                     <div className="flex items-center gap-2">
                       <span className="text-3xl font-bold text-foreground">{monthStats.value}</span>
-                      <span className={`flex items-center text-sm font-medium ${
-                        monthStats.trend === "up" ? "text-success" : "text-destructive"
-                      }`}>
+                      <span className={`flex items-center text-sm font-medium ${monthStats.trend === "up" ? "text-success" : "text-destructive"
+                        }`}>
                         {monthStats.trend === "up" ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                         {monthStats.change}
                       </span>
@@ -245,56 +253,39 @@ export default function DashboardPage() {
             {/* Revenue Chart */}
             <Card variant="bordered" className="lg:col-span-2">
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                  Weekly Revenue
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="text-primary" /> Weekly Revenue
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="h-70">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={revenueData}>
-                      <defs>
-                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis 
-                        dataKey="name" 
-                        stroke="hsl(var(--muted-foreground))"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <YAxis 
-                        stroke=""
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={(value) => `$${value}`}
-                      />
-                      <Tooltip 
-                        contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: "8px",
-                        }}
-                        labelStyle={{ color: "hsl(var(--foreground))" }}
-                        formatter={(value: number | undefined) => [`$${value ?? 0}`, "Revenue"]}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="revenue"
-                        stroke="hsl(var(--primary))"
-                        strokeWidth={2}
-                        fillOpacity={1}
-                        fill="url(#colorRevenue)"
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
+              <CardContent className="h-[320px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={revenueData}>
+                    <defs>
+                      <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={colors.revenue} stopOpacity={0.35} />
+                        <stop offset="95%" stopColor={colors.revenue} stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+
+                    <CartesianGrid stroke={colors.grid} strokeDasharray="3 3" />
+                    <XAxis dataKey="name" stroke={colors.axis} />
+                    <YAxis stroke={colors.axis} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: colors.tooltipBg,
+                        border: `1px solid ${colors.tooltipBorder}`,
+                        color: colors.tooltipText,
+                        borderRadius: 8,
+                      }}
+                    />
+                    <Area
+                      dataKey="revenue"
+                      stroke={colors.revenue}
+                      fill="url(#rev)"
+                      strokeWidth={2}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
 
@@ -312,24 +303,20 @@ export default function DashboardPage() {
                     <PieChart>
                       <Pie
                         data={categoryData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={50}
-                        outerRadius={80}
-                        paddingAngle={4}
                         dataKey="value"
+                        innerRadius={60}
+                        outerRadius={90}
                       >
-                        {categoryData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        {colors.pie.map((c, i) => (
+                          <Cell key={i} fill={c} />
                         ))}
                       </Pie>
-                      <Tooltip 
+                      <Tooltip
                         contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: "8px",
+                          backgroundColor: colors.tooltipBg,
+                          border: `1px solid ${colors.tooltipBorder}`,
+                          color: colors.tooltipText,
                         }}
-                        formatter={(value: number | undefined) => [`${value ?? 0}%`, "Share"]}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -337,8 +324,8 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-2 gap-2 mt-4">
                   {categoryData.map((item) => (
                     <div key={item.name} className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
+                      <div
+                        className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: item.color }}
                       />
                       <span className="text-sm text-muted-foreground">{item.name}</span>
@@ -368,27 +355,27 @@ export default function DashboardPage() {
                 <div className="h-62.5">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={bestSellingData} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-                      <XAxis 
-                        type="number" 
-                        stroke="hsl(var(--muted-foreground))"
+                      <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} horizontal={false} />
+                      <XAxis
+                        type="number"
+                        stroke={colors.axis}
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
                       />
-                      <YAxis 
-                        type="category" 
-                        dataKey="name" 
-                        stroke="hsl(var(--muted-foreground))"
+                      <YAxis
+                        type="category"
+                        dataKey="name"
+                        stroke={colors.axis}
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
                         width={80}
                       />
-                      <Tooltip 
+                      <Tooltip
                         contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
+                          backgroundColor: colors.tooltipBg,
+                          border: `1px solid ${colors.tooltipBorder}`,
                           borderRadius: "8px",
                         }}
                         formatter={(value: number | undefined, name: string | undefined) => [
@@ -396,9 +383,9 @@ export default function DashboardPage() {
                           name === "sales" ? "Units Sold" : "Revenue"
                         ]}
                       />
-                      <Bar 
-                        dataKey="sales" 
-                        fill="hsl(var(--primary))" 
+                      <Bar
+                        dataKey="sales"
+                        fill={colors.revenue}
                         radius={[0, 4, 4, 0]}
                         barSize={24}
                       />

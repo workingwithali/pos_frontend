@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import { ArrowLeft, User } from "lucide-react";
-import  Link  from "next/link";
+import { ArrowLeft, User, Phone, X } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ProductGrid } from "@/components/pos/ProductGrid";
 import { CartPanel, CartItem } from "@/components/pos/CartPanel";
@@ -19,6 +19,10 @@ export default function POSTerminalPage() {
     amountPaid: 0,
   });
 
+  // Customer
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerName, setCustomerName] = useState<string | undefined>();
+
   // Calculate totals
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const discountAmount = (subtotal * discount) / 100;
@@ -26,6 +30,7 @@ export default function POSTerminalPage() {
   const taxAmount = (subtotal - discountAmount) * taxRate;
   const total = subtotal - discountAmount + taxAmount;
 
+  // Cart Handlers
   const handleAddToCart = (product: { id: number; name: string; price: number }) => {
     setCartItems((prev) => {
       const existing = prev.find((item) => item.id === product.id);
@@ -55,6 +60,8 @@ export default function POSTerminalPage() {
   const handleClearCart = () => {
     setCartItems([]);
     setDiscount(0);
+    setCustomerPhone("");
+    setCustomerName(undefined);
     toast({
       title: "Cart Cleared",
       description: "All items have been removed from the cart.",
@@ -68,6 +75,8 @@ export default function POSTerminalPage() {
     });
     setCartItems([]);
     setDiscount(0);
+    setCustomerPhone("");
+    setCustomerName(undefined);
   };
 
   const handlePaymentComplete = (method: string, amountPaid: number) => {
@@ -80,16 +89,30 @@ export default function POSTerminalPage() {
     setReceiptModalOpen(false);
     setCartItems([]);
     setDiscount(0);
+    setCustomerPhone("");
+    setCustomerName(undefined);
     toast({
       title: "Ready for Next Sale",
       description: "The register is ready for a new transaction.",
     });
   };
 
+  // Customer Phone Change
+  const handleCustomerPhoneChange = (phone: string) => {
+    setCustomerPhone(phone);
+
+    // Example: mock customer lookup
+    if (phone === "03001234567") {
+      setCustomerName("Ali Khan");
+    } else {
+      setCustomerName(undefined);
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Header */}
-      <header className="h-14 border-b bg-card flex items-center justify-between px-4 shrink-0">
+      <header className="h-14 border-b flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/dashboard">
@@ -102,9 +125,11 @@ export default function POSTerminalPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <User className="h-4 w-4 mr-2" />
-            Add Customer
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/customers" className="flex items-center gap-1">
+              <User className="h-4 w-4" />
+              <div>Add Customers</div>
+            </Link>
           </Button>
         </div>
       </header>
@@ -127,6 +152,13 @@ export default function POSTerminalPage() {
             onPayNow={() => setPaymentModalOpen(true)}
             discount={discount}
             onDiscountChange={setDiscount}
+            customerPhone={customerPhone}
+            customerName={customerName}
+            onCustomerPhoneChange={handleCustomerPhoneChange}
+            onClearCustomer={() => {
+              setCustomerPhone("");
+              setCustomerName(undefined);
+            }}
           />
         </div>
       </div>
@@ -151,6 +183,7 @@ export default function POSTerminalPage() {
         paymentMethod={lastPayment.method}
         amountPaid={lastPayment.amountPaid}
         change={lastPayment.amountPaid - total}
+        customerName={customerName}
         onNewSale={handleNewSale}
       />
     </div>
