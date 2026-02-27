@@ -34,7 +34,7 @@ export default function LoginPage() {
     },
     onSuccess: (data) => {
       console.log("login" , data)
-      login(data.token, data.user)
+      login(data.token)
       router.push("/")
     },
   })

@@ -5,9 +5,8 @@ export const refreshToken = async () => {
   try {
     const response = await api.post("/auth/refresh");
     const { accessToken } = response.data;
+    
 
-    // Save new access token
-    localStorage.setItem("accessToken", accessToken);
     return accessToken;
   } catch (err) {
     console.error("Refresh token failed:", err);
@@ -17,10 +16,11 @@ export const refreshToken = async () => {
 
 export const logout = async () => {
   try {
-    await api.post("/auth/logout");
+    await api.post("/auth/logout", {}, { withCredentials: true });
   } catch (err) {
     console.error("Logout request failed:", err);
   } finally {
     localStorage.removeItem("accessToken");
+    window.location.href = "/login";
   }
 };

@@ -42,8 +42,7 @@ export default function RegisterPage() {
       return res.data
     },
     onSuccess: (data) => {
-      console.log("Registration successful:", data)
-      login(data.token, data.user)
+      login(data.token)
       router.push("/")
     },
   })
