@@ -148,7 +148,11 @@ export default function CategoriesPage() {
 
       {/* Dialog */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="rounded-2xl sm:max-w-sm">
+        <DialogContent
+          className="rounded-2xl sm:max-w-sm"
+          aria-describedby={undefined}
+
+        >
           <DialogHeader>
             <DialogTitle>{editing ? "Edit Category" : "Add Category"}</DialogTitle>
           </DialogHeader>
@@ -179,6 +183,6 @@ export default function CategoriesPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   );
 }

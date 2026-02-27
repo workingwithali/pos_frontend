@@ -7,7 +7,7 @@ export const loginSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>
 
-export const registerSchema = z.object({
+export const signupSchema = z.object({
   shopName: z.string().min(2, "Shop name is required"),
   OwnerName: z.string().min(2, "Owner name is required"),
   email: z.string().email("Invalid email"),
@@ -16,4 +16,4 @@ export const registerSchema = z.object({
   taxRate: z.number().min(0).max(100),
 })
 
-export type RegisterInput = z.infer<typeof registerSchema>
+export type RegisterInput = z.infer<typeof signupSchema>

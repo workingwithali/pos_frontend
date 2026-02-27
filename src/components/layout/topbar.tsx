@@ -2,18 +2,20 @@
 
 import { LogOut, User as UserIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { logout as apiLogout } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { useAuthUser } from "@/hooks/useAuthUser";
+import {  useLogout, useMe } from "@/hooks/useAuth";
 
 export function Topbar() {
   const router = useRouter();
-  const { data: user, isLoading } = useAuthUser();
-
+  const { data: user, isLoading } = useMe();
+  const logoutMutation = useLogout();
   const handleLogout = async () => {
     try {
-      await apiLogout();
-      router.push("/login");
+      logoutMutation.mutate(undefined, {
+        onSuccess: () => {
+          router.push("/login");
+        },
+      });
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -30,14 +32,14 @@ export function Topbar() {
           <div className="flex items-center gap-2 sm:gap-4">
             {isLoading ? (
               <div className="h-4 w-24 bg-muted animate-pulse rounded"></div>
-            ) : user ? (
+            ) : user?.data ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground mr-2">
                 <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center">
                   <UserIcon className="h-4 w-4 text-primary" />
                 </div>
                 <div className="hidden sm:flex flex-col items-start leading-none gap-1">
-                  <span className="font-medium text-foreground">{user.name || "User"}</span>
-                  <span className="text-xs">{user.role || ""}</span>
+                  <span className="font-medium text-foreground">{user.data.name || "User"}</span>
+                  <span className="text-xs">{user.data.role || ""}</span>
                 </div>
               </div>
             ) : null}
