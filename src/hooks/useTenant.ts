@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import  api  from "@/lib/api";
 import { Tenant, TenantSchema } from "@/types/tenant";
 import { useTenantStore } from "@/store/tenantStore";
 

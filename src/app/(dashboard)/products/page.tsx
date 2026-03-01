@@ -39,9 +39,12 @@ const ProductsPage = () => {
     name: "",
     sku: "",
     categoryId: "",
-    costPrice: "",
+    cost: "",
     price: "",
     stock: "",
+  });
+  products.forEach((p, i) => {
+    console.log(i, p.price, typeof p.price);
   });
 
   const filtered = products.filter(
@@ -56,7 +59,7 @@ const ProductsPage = () => {
       name: "",
       sku: "",
       categoryId: categories.length > 0 ? categories[0].id : "",
-      costPrice: "",
+      cost: "",
       price: "",
       stock: "",
     });
@@ -69,7 +72,7 @@ const ProductsPage = () => {
       name: p.name || "",
       sku: p.sku || "",
       categoryId: p.categoryId || "",
-      costPrice: p.costPrice != null ? String(p.costPrice) : "",
+      cost: p.cost != null ? String(p.cost) : "",
       price: p.price != null ? String(p.price) : "",
       stock: p.stock != null ? String(p.stock) : "",
     });
@@ -84,7 +87,7 @@ const ProductsPage = () => {
           name: form.name,
           sku: form.sku,
           categoryId: form.categoryId,
-          costPrice: parseFloat(form.costPrice) || 0,
+          cost: parseFloat(form.cost) || 0,
           price: parseFloat(form.price) || 0,
           stock: parseInt(form.stock) || 0,
           lowStockThreshold: 5,
@@ -109,7 +112,7 @@ const ProductsPage = () => {
           name: form.name,
           sku: form.sku,
           categoryId: form.categoryId,
-          costPrice: parseFloat(form.costPrice) || 0,
+          cost: parseFloat(form.cost) || 0,
           price: parseFloat(form.price) || 0,
           stock: parseInt(form.stock) || 0,
           lowStockThreshold: 5,
@@ -212,10 +215,10 @@ const ProductsPage = () => {
                         </span>
                       </td>
                       <td className="px-5 py-3 text-right">
-                        ${p.costPrice.toFixed(2)}
+                        ${Number(p.cost).toFixed(2)}
                       </td>
                       <td className="px-5 py-3 text-right">
-                        ${p.price.toFixed(2)}
+                        ${Number(p.price).toFixed(2)}
                       </td>
                       <td className="px-5 py-3 text-right">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${p.stock <= (p.lowStockThreshold || 5) ? 'bg-destructive/10 text-destructive' : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'}`}>
@@ -250,7 +253,11 @@ const ProductsPage = () => {
 
       {/* Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent
+          className="sm:max-w-106.25"
+          aria-describedby={undefined}
+
+        >
           <DialogHeader>
             <DialogTitle>
               {editing ? "Edit Product" : "Add Product"}
@@ -306,9 +313,9 @@ const ProductsPage = () => {
                   placeholder="0.00"
                   step="0.01"
                   min="0"
-                  value={form.costPrice}
+                  value={form.cost}
                   onChange={(e) =>
-                    setForm((f) => ({ ...f, costPrice: e.target.value }))
+                    setForm((f) => ({ ...f, cost: e.target.value }))
                   }
                 />
               </div>

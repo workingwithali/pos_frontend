@@ -151,7 +151,6 @@ export default function CategoriesPage() {
         <DialogContent
           className="rounded-2xl sm:max-w-sm"
           aria-describedby={undefined}
-
         >
           <DialogHeader>
             <DialogTitle>{editing ? "Edit Category" : "Add Category"}</DialogTitle>

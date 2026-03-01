@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { QueryProvider } from "@/components/shared/query-provider";
 import { ReactNode } from "react";
-import { Toaster } from "@/components/ui/sonner"
 
 
 
@@ -17,7 +16,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body>
         <QueryProvider>{children}</QueryProvider>
-        <Toaster />
       </body>
     </html>
   )

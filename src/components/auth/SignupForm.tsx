@@ -9,15 +9,23 @@ import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Loader2, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export const SignupForm = () => {
+  const router = useRouter();
+
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(signupSchema),
   });
 
   const mutation = useSignup();
 
-  const onSubmit = (data: any) => mutation.mutate({ ...data, currency: "pkr" });
+  const onSubmit = (data: any) => mutation.mutate({ ...data, currency: "pkr" }, {
+    onSuccess: () => {
+      router.push('/'); // Redirect to home page after login
+      console.log('Signup successful, access token set');
+    },
+  });
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -59,7 +67,7 @@ export const SignupForm = () => {
             <Input type="password" {...register("password")} placeholder="••••••••" className="h-11 rounded-xl" />
             {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
           </div>
-          
+
 
           <div className="space-y-2">
             <Label>Tax %</Label>

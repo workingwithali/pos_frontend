@@ -2,9 +2,7 @@
 
 "use client";
 
-import { useEffect } from "react";
-import { useTenant, useActivateSubscription } from "@/hooks/useSubscription";
-import { useTenantStore } from "@/store/tenantStore";
+import { useSubscriptionStatus, useSubscribe } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CreditCard, Check } from "lucide-react";
@@ -12,19 +10,12 @@ import { differenceInDays } from "date-fns";
 import { toast } from "sonner";
 
 const SubscriptionPage = () => {
-  const { data, isLoading } = useTenant();
-  const { mutateAsync, isPending } = useActivateSubscription();
-
-  const tenant = useTenantStore((s) => s.tenant);
-  const setTenant = useTenantStore((s) => s.setTenant);
-
-  useEffect(() => {
-    if (data) setTenant(data);
-  }, [data, setTenant]);
+  const { data: subscription, isLoading } = useSubscriptionStatus();
+  const { mutateAsync, isPending } = useSubscribe();
 
   const trialDays =
-    tenant?.trialEndsAt
-      ? differenceInDays(new Date(tenant.trialEndsAt), new Date())
+    subscription?.trialEndsAt
+      ? differenceInDays(new Date(subscription.trialEndsAt), new Date())
       : 0;
 
   const handleActivate = async () => {
@@ -33,10 +24,8 @@ const SubscriptionPage = () => {
       toast.success("Subscription Activated", {
         description: "Your plan is now active.",
       });
-    } catch {
-      toast.error("Error", {
-        description: "Could not activate subscription.",
-      });
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err.message || "Could not activate subscription.");
     }
   };
 
@@ -51,7 +40,7 @@ const SubscriptionPage = () => {
       </h1>
 
       <div className="mx-auto max-w-md">
-        <div className="rounded-2xl bg-card p-8 shadow-md text-center space-y-6">
+        <div className="rounded-2xl bg-card p-8 shadow-md text-center space-y-6 border">
 
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
             <CreditCard className="h-7 w-7 text-primary" />
@@ -71,19 +60,19 @@ const SubscriptionPage = () => {
 
           <Badge
             variant={
-              tenant?.subscriptionStatus === "active"
+              subscription?.status === "active"
                 ? "default"
-                : tenant?.subscriptionStatus === "trial"
-                ? "outline"
-                : "destructive"
+                : subscription?.status === "trial"
+                  ? "outline"
+                  : "destructive"
             }
             className="rounded-lg text-sm px-3 py-1"
           >
-            {tenant?.subscriptionStatus === "trial"
-              ? `Trial · ${trialDays} days left`
-              : tenant?.subscriptionStatus === "active"
-              ? "Active"
-              : "Expired"}
+            {subscription?.status === "trial"
+              ? `Trial · ${Math.max(0, trialDays)} days left`
+              : subscription?.status === "active"
+                ? "Active"
+                : "Expired"}
           </Badge>
 
           <ul className="space-y-2 text-left text-sm text-card-foreground">
@@ -104,15 +93,15 @@ const SubscriptionPage = () => {
           <Button
             className="w-full rounded-xl h-11 text-base font-semibold"
             disabled={
-              tenant?.subscriptionStatus === "active" || isPending
+              subscription?.status === "active" || isPending
             }
             onClick={handleActivate}
           >
-            {tenant?.subscriptionStatus === "active"
+            {subscription?.status === "active"
               ? "Already Active"
               : isPending
-              ? "Activating..."
-              : "Activate Plan"}
+                ? "Activating..."
+                : "Activate Plan"}
           </Button>
         </div>
       </div>

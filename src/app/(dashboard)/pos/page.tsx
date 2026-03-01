@@ -11,7 +11,11 @@ import {
   Printer,
 } from "lucide-react"
 
-import { usePOSStore, CartItem, Product, Sale } from "@/store/pos.store"
+import { usePOSStore, Product, Sale } from "@/store/pos.store"
+import { useCreateSale } from "@/hooks/useSales"
+import { useGetProducts } from "@/hooks/useProducts"
+import { useGetCategories } from "@/hooks/useCategoriesApi"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -20,9 +24,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { CartItem } from "@/types/cart"
 
 export default function POSPage() {
-  const { products, categories, taxRate, addSale } = usePOSStore()
+  const { taxRate } = usePOSStore()
+  const createSale = useCreateSale()
+
+  const { data: products = [], isLoading: productsLoading } = useGetProducts()
+  const { data: categories = [], isLoading: categoriesLoading } = useGetCategories()
 
   const [search, setSearch] = useState("")
   const [selectedCategory, setSelectedCategory] =
@@ -90,29 +99,36 @@ export default function POSPage() {
   const taxAmount = (subtotal - discountAmount) * (taxRate / 100)
   const total = subtotal - discountAmount + taxAmount
 
-  const confirmSale = (paymentMethod: "cash" | "card") => {
+  const confirmSale = async (paymentMethod: "cash" | "card") => {
     if (cart.length === 0) return
 
-    const sale: Sale = {
-      id: `INV-${Date.now().toString(36).toUpperCase()}`,
-      items: cart.map((c) => ({
-        productName: c.product.name,
-        quantity: c.quantity,
-        price: c.product.price,
-      })),
-      subtotal,
-      discount: discountAmount,
-      tax: taxAmount,
-      total,
-      paymentMethod,
-      date: new Date().toISOString(),
-    }
+    try {
+      // Create mutation payload targeting exact API specs
+      const payload = {
+        items: cart.map((c) => ({
+          productId: c.product.id,
+          quantity: c.quantity,
+          price: c.product.price,
+        })),
+        paymentMethod,
+        discount: discountAmount,
+        tax: taxAmount,
+        total,
+      }
 
-    addSale(sale)
-    setLastSale(sale)
-    setCart([])
-    setDiscount(0)
-    setInvoiceOpen(true)
+      // Execute request
+      const response = await createSale.mutateAsync(payload)
+
+      // Set the validated response as last sale to render on Receipt
+      setLastSale(response as any) // Assuming returned type aligns with rendered type or use response.id
+      setCart([])
+      setDiscount(0)
+      setInvoiceOpen(true)
+      toast.success("Sale processed successfully")
+
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err.message || "Failed to process sale")
+    }
   }
 
   const handlePrint = () => {
@@ -142,45 +158,55 @@ export default function POSPage() {
             All
           </Button>
 
-          {categories.map((c) => (
-            <Button
-              key={c.id}
-              size="sm"
-              variant={
-                selectedCategory === c.id
-                  ? "default"
-                  : "secondary"
-              }
-              onClick={() => setSelectedCategory(c.id)}
-            >
-              {c.name}
-            </Button>
-          ))}
+          {categoriesLoading ? (
+            <div className="flex items-center text-sm text-muted-foreground ml-2">Loading categories...</div>
+          ) : (
+            categories.map((c) => (
+              <Button
+                key={c.id}
+                size="sm"
+                variant={
+                  selectedCategory === c.id
+                    ? "default"
+                    : "secondary"
+                }
+                onClick={() => setSelectedCategory(c.id)}
+              >
+                {c.name}
+              </Button>
+            ))
+          )}
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 overflow-y-auto">
-          {filtered.map((p) => (
-            <Button
-              key={p.id}
-              variant="outline"
-              className="h-auto flex flex-col items-start p-4 rounded-xl"
-              onClick={() => addToCart(p)}
-              disabled={p.stock <= 0}
-            >
-              <span className="font-semibold">
-                {p.name}
-              </span>
-              <span className="text-primary font-bold mt-1">
-                ${p.price.toFixed(2)}
-              </span>
-              <span className="text-xs mt-1 text-muted-foreground">
-                {p.stock <= 0
-                  ? "Out of stock"
-                  : `${p.stock} in stock`}
-              </span>
-            </Button>
-          ))}
-        </div>
+        {productsLoading ? (
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-muted-foreground animate-pulse">Loading products...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 overflow-y-auto">
+            {filtered.map((p) => (
+              <Button
+                key={p.id}
+                variant="outline"
+                className="h-auto flex flex-col items-start p-4 rounded-xl"
+                onClick={() => addToCart(p)}
+                disabled={p.stock <= 0}
+              >
+                <span className="font-semibold">
+                  {p.name}
+                </span>
+                <span className="text-primary font-bold mt-1">
+                  ${Number(p.price).toFixed(2)}
+                </span>
+                <span className="text-xs mt-1 text-muted-foreground">
+                  {p.stock <= 0
+                    ? "Out of stock"
+                    : `${p.stock} in stock`}
+                </span>
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Cart */}
@@ -206,7 +232,7 @@ export default function POSPage() {
                   {c.product.name}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  ${c.product.price.toFixed(2)}
+                  ${Number(c.product.price).toFixed(2)}
                 </p>
               </div>
 
@@ -275,6 +301,7 @@ export default function POSPage() {
             <Button
               variant="outline"
               onClick={() => confirmSale("cash")}
+              disabled={createSale.isPending}
             >
               <Banknote className="h-4 w-4 mr-2" />
               Cash
@@ -283,6 +310,7 @@ export default function POSPage() {
             <Button
               variant="outline"
               onClick={() => confirmSale("card")}
+              disabled={createSale.isPending}
             >
               <CreditCard className="h-4 w-4 mr-2" />
               Card

@@ -45,5 +45,7 @@ export const useMe = () => {
     queryFn: () => me(),
     retry: false,
     refetchOnWindowFocus: false,
+    enabled: !!useAuthStore.getState().accessToken,
+
   });
 };
