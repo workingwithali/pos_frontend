@@ -62,13 +62,13 @@ export default function DashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Today's Sales"
-          value={`$${(metrics?.todaySales || 0).toFixed(2)}`}
+          value={`$${Number(metrics?.todaySales || 0).toFixed(2)}`}
           icon={DollarSign}
           isLoading={isMetricsLoading}
         />
         <StatCard
           title="Total Revenue"
-          value={`$${(metrics?.totalRevenue || 0).toFixed(2)}`}
+          value={`$${Number(metrics?.totalRevenue || 0).toFixed(2)}`}
           icon={Wallet}
           isLoading={isMetricsLoading}
         />

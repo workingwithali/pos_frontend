@@ -131,7 +131,7 @@ const SalesPage = () => {
                       </TableCell>
 
                       <TableCell className="text-right font-medium">
-                        ${sale.total.toFixed(2)}
+                        ${Number(sale.total).toFixed(2)}
                       </TableCell>
 
                       <TableCell className="text-right">
@@ -156,12 +156,12 @@ const SalesPage = () => {
 
       {/* Invoice Modal */}
       <Dialog open={!!selectedInvoiceId} onOpenChange={(open) => !open && closeInvoice()}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-106.25">
           <DialogHeader>
             <DialogTitle>Invoice Details</DialogTitle>
           </DialogHeader>
 
-          <div className="p-4 bg-muted/20 border rounded-lg min-h-[150px] max-h-[400px] overflow-y-auto mt-2 text-sm whitespace-pre-wrap">
+          <div className="p-4 bg-muted/20 border rounded-lg min-h-37.5 max-h-100 overflow-y-auto mt-2 text-sm whitespace-pre-wrap">
             {isLoadingInvoice ? (
               <div className="flex justify-center items-center h-full text-muted-foreground p-10">
                 <Loader2 className="h-5 w-5 animate-spin mr-2" />
