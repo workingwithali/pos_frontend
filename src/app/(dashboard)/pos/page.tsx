@@ -274,12 +274,35 @@ export default function POSPage() {
             </div>
           ))}
         </div>
+        
 
         <div className="p-4 border-t space-y-3">
+          
+          <div className="flex justify-between text-sm items-center gap-2">
+            <span>Discount (%)</span>
+            <Input
+              type="number"
+              placeholder="0%"
+              min="0"
+              max="100"
+              value={discount || ""}
+              onChange={(e) => setDiscount(Number(e.target.value))}
+              className="w-20 h-8 text-right rounded-lg"
+            />
+          </div>
+
+          {discount > 0 && (
+            <div className="flex justify-between text-sm text-red-500 font-medium">
+              <span>Discount Amount</span>
+              <span>-${Number(discountAmount).toFixed(2)}</span>
+            </div>
+          )}
+
           <div className="flex justify-between text-sm">
             <span>Subtotal</span>
             <span>${subtotal.toFixed(2)}</span>
           </div>
+
 
           <div className="flex justify-between text-sm">
             <span>Tax ({taxRate}%)</span>
