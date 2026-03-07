@@ -103,31 +103,25 @@ export default function POSPage() {
     if (cart.length === 0) return
 
     try {
-      // Create mutation payload targeting exact API specs
       const payload = {
         items: cart.map((c) => ({
           productId: c.product.id,
           quantity: c.quantity,
-          price: c.product.price,
         })),
-        paymentMethod,
-        discount: discountAmount,
-        tax: taxAmount,
-        total,
+        discountPercent: discount,
+        paymentMethod: paymentMethod.toUpperCase(), // important
       }
 
-      // Execute request
       const response = await createSale.mutateAsync(payload)
 
-      // Set the validated response as last sale to render on Receipt
-      setLastSale(response as any) // Assuming returned type aligns with rendered type or use response.id
+      setLastSale(response as any)
       setCart([])
       setDiscount(0)
       setInvoiceOpen(true)
-      toast.success("Sale processed successfully")
 
+      toast.success("Sale processed successfully")
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || err.message || "Failed to process sale")
+      toast.error(err?.response?.data?.message || "Sale failed")
     }
   }
 
@@ -324,7 +318,9 @@ export default function POSPage() {
         open={invoiceOpen}
         onOpenChange={setInvoiceOpen}
       >
-        <DialogContent>
+        <DialogContent
+          aria-describedby={undefined}
+        >
           <DialogHeader>
             <DialogTitle>
               Sale Complete ✓
@@ -345,7 +341,7 @@ export default function POSPage() {
                 </p>
                 <p className="font-bold">
                   Total: $
-                  {lastSale.totalAmount.toFixed(2)}
+                  {Number(lastSale.totalAmount).toFixed(2)}
                 </p>
               </div>
 
