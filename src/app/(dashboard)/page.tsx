@@ -10,6 +10,8 @@ import {
 } from "lucide-react"
 
 import { useGetMetrics, useGetTopSelling, useGetLowStock } from "@/hooks/useDashboardApi"
+import { useTenantStore } from "@/store/tenantStore"
+import { formatCurrency } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import RevenueChart from "@/components/dashboard/revenue-chart"
 
@@ -46,6 +48,9 @@ export default function DashboardPage() {
   const { data: topSelling = [], isLoading: isTopSellingLoading } = useGetTopSelling()
   const { data: lowStockProducts = [], isLoading: isLowStockLoading } = useGetLowStock()
 
+  const tenant = useTenantStore((s) => s.tenant)
+  const currency = tenant?.currency || "USD"
+
   const chartData = useMemo(() => {
     const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     return days.map((d) => ({
@@ -62,13 +67,13 @@ export default function DashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Today's Sales"
-          value={`$${Number(metrics?.todaySales || 0).toFixed(2)}`}
+          value={formatCurrency(Number(metrics?.todaySales || 0), currency)}
           icon={DollarSign}
           isLoading={isMetricsLoading}
         />
         <StatCard
           title="Total Revenue"
-          value={`$${Number(metrics?.totalRevenue || 0).toFixed(2)}`}
+          value={formatCurrency(Number(metrics?.totalRevenue || 0), currency)}
           icon={Wallet}
           isLoading={isMetricsLoading}
         />
@@ -112,7 +117,7 @@ export default function DashboardPage() {
             </p>
           ) : (
             <div className="space-y-3">
-              {lowStockProducts.map((p) => (
+              {lowStockProducts.map((p: any) => (
                 <div
                   key={p.id}
                   className="flex items-center justify-between text-sm"
@@ -154,7 +159,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {topSelling.map((p) => (
+                  {topSelling.map((p: any) => (
                     <tr
                       key={p.productId}
                       className="border-b last:border-0"

@@ -117,8 +117,8 @@ const SalesPage = () => {
                       </TableCell>
 
                       <TableCell className="text-muted-foreground">
-                        {new Date(sale.date).toLocaleString()}
-                      </TableCell>
+                        {sale.createdAt && new Date(sale.createdAt).toLocaleString()}
+\                      </TableCell>
 
                       <TableCell className="text-muted-foreground">
                         {sale.items.length} items
@@ -131,14 +131,14 @@ const SalesPage = () => {
                       </TableCell>
 
                       <TableCell className="text-right font-medium">
-                        ${Number(sale.total).toFixed(2)}
+                        ${Number(sale.totalAmount).toFixed(2)}
                       </TableCell>
 
                       <TableCell className="text-right">
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleViewInvoice(sale.id)}
+                          onClick={() => handleViewInvoice(sale.id!)}
                           className="gap-2"
                         >
                           <FileText className="h-4 w-4" />
@@ -156,7 +156,10 @@ const SalesPage = () => {
 
       {/* Invoice Modal */}
       <Dialog open={!!selectedInvoiceId} onOpenChange={(open) => !open && closeInvoice()}>
-        <DialogContent className="sm:max-w-106.25">
+        <DialogContent 
+        className="sm:max-w-106.25"
+        aria-describedby={undefined}
+        >
           <DialogHeader>
             <DialogTitle>Invoice Details</DialogTitle>
           </DialogHeader>

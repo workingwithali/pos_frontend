@@ -340,12 +340,12 @@ export default function POSPage() {
                 <p>
                   Date:{" "}
                   {new Date(
-                    lastSale.date
+                    lastSale.createdAt || new Date()
                   ).toLocaleString()}
                 </p>
                 <p className="font-bold">
                   Total: $
-                  {lastSale.total.toFixed(2)}
+                  {lastSale.totalAmount.toFixed(2)}
                 </p>
               </div>
 

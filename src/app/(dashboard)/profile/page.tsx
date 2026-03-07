@@ -8,52 +8,50 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { toast } from "sonner";
-import { useTenantQuery, useUpdateTenantMutation } from "@/hooks/useTenant";
-import { Tenant } from "@/types/tenant";
+import { useUserProfile, useUpdateUserProfile } from "@/hooks/useUser";
+import { UserProfile, UserProfileSchema } from "@/types/user";
 
 export default function ProfilePage() {
-  const { data: tenant, isLoading, error } = useTenantQuery();
-  const updateTenant = useUpdateTenantMutation();
+  const { data: profile, isLoading, error } = useUserProfile();
+  const updateProfile = useUpdateUserProfile();
 
-  const [form, setForm] = useState<Pick<Tenant, "id"> & {
-    email?: string;
-    ownerName?: string;
-  }>({
-    id: "",
-    ownerName: "",
+  const [form, setForm] = useState<Partial<UserProfile>>({
+    name: "",
     email: "",
   });
 
   useEffect(() => {
-    if (tenant) {
-      setForm({
-        id: tenant.id,
-        ownerName: (tenant as any).ownerName ?? "",
-        email: (tenant as any).email ?? "",
-      });
+    if (profile) {
+      setForm(profile);
     }
-  }, [tenant]);
+  }, [profile]);
 
-  const initials = (form.ownerName || "A")
+  const initials = (form.name || "U")
     .split(" ")
     .map((w) => w[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
 
-  const handleSave = () => {
-    updateTenant.mutate(form, {
-      onSuccess: () => {
-        toast.success("Profile updated", {
-          description: "Your changes have been saved.",
-        });
-      },
-      onError: () => {
-        toast.error("Update failed", {
-          description: "Something went wrong",
-        });
-      },
-    });
+  const handleSave = async () => {
+    const parsed = UserProfileSchema.safeParse(form);
+    if (!parsed.success) {
+      toast.error("Validation error", {
+        description: parsed.error.issues[0].message,
+      });
+      return;
+    }
+
+    try {
+      await updateProfile.mutateAsync(parsed.data);
+      toast.success("Profile updated", {
+        description: "Your changes have been saved.",
+      });
+    } catch (err: any) {
+      toast.error("Update failed", {
+        description: err?.response?.data?.message || "Something went wrong",
+      });
+    }
   };
 
   if (isLoading) return <p>Loading profile...</p>;
@@ -87,9 +85,9 @@ export default function ProfilePage() {
               Full Name
             </Label>
             <Input
-              value={form.ownerName}
+              value={form.name || ""}
               onChange={(e) =>
-                setForm((f) => ({ ...f, ownerName: e.target.value }))
+                setForm((f) => ({ ...f, name: e.target.value }))
               }
               className="rounded-xl"
             />
@@ -102,7 +100,7 @@ export default function ProfilePage() {
             </Label>
             <Input
               type="email"
-              value={form.email}
+              value={form.email || ""}
               onChange={(e) =>
                 setForm((f) => ({ ...f, email: e.target.value }))
               }
@@ -113,25 +111,11 @@ export default function ProfilePage() {
 
         <Button
           onClick={handleSave}
-          disabled={updateTenant.isPending}
+          disabled={updateProfile.isPending}
           className="w-full rounded-xl"
         >
-          {updateTenant.isPending ? "Saving..." : "Save Changes"}
+          {updateProfile.isPending ? "Saving..." : "Save Changes"}
         </Button>
-      </div>
-
-      {/* Info Card */}
-      <div className="rounded-2xl bg-muted/50 p-4 text-sm space-y-1">
-        <p>
-          <span className="font-medium">Status:</span>{" "}
-          <span className="capitalize">
-            {tenant?.subscriptionStatus}
-          </span>
-        </p>
-        <p>
-          <span className="font-medium">Trial Ends:</span>{" "}
-          {tenant?.trialEndsAt ?? "N/A"}
-        </p>
       </div>
     </div>
   );

@@ -11,8 +11,9 @@ export const signupSchema = z.object({
   shopName: z.string().min(2, "Shop name is required"),
   OwnerName: z.string().min(2, "Owner name is required"),
   email: z.string().email("Invalid email"),
+  address: z.string().min(3, "Address is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  // currency: z.string().min(1, "Currency is required"),
+  currency: z.enum(["USD", "EUR", "GBP", "MAD", "PKR"]),
   taxRate: z.number().min(0).max(100),
 })
 

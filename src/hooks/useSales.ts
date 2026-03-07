@@ -20,6 +20,7 @@ export const useGetSales = () => {
     queryKey: salesKeys.lists(),
     queryFn: async () => {
       const { data } = await api.get("/sales");
+      console.log("Fetched sales data:", data);
       return data;
     },
   });
@@ -60,6 +61,7 @@ export const useCreateSale = () => {
     // Typically items [], paymentMethod, etc.
     mutationFn: async (payload: any): Promise<Sale> => {
       const { data } = await api.post("/sales", payload);
+      console.log(data)
       return data;
     },
     onSuccess: () => {

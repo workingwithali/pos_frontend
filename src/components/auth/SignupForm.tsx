@@ -3,10 +3,18 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema } from "@/types/auth.schema";
+import { Tenant } from "@/types/tenant";
 import { useSignup } from "@/hooks/useAuth";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { Loader2, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -14,13 +22,18 @@ import { useRouter } from "next/navigation";
 export const SignupForm = () => {
   const router = useRouter();
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
     resolver: zodResolver(signupSchema),
+    defaultValues: {
+      currency: "USD",
+    }
   });
+
+  const currencyValue = watch("currency");
 
   const mutation = useSignup();
 
-  const onSubmit = (data: any) => mutation.mutate({ ...data, currency: "pkr" }, {
+  const onSubmit = (data: any) => mutation.mutate(data, {
     onSuccess: () => {
       router.push('/'); // Redirect to home page after login
       console.log('Signup successful, access token set');
@@ -57,6 +70,12 @@ export const SignupForm = () => {
           </div>
 
           <div className="space-y-2">
+            <Label>Address</Label>
+            <Input {...register("address")} placeholder="123 Main St, City" className="h-11 rounded-xl" />
+            {errors.address && <p className="text-sm text-red-500">{(errors.address as any).message}</p>}
+          </div>
+
+          <div className="space-y-2">
             <Label>Email</Label>
             <Input type="email" {...register("email")} placeholder="you@example.com" className="h-11 rounded-xl" />
             {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
@@ -69,17 +88,43 @@ export const SignupForm = () => {
           </div>
 
 
-          <div className="space-y-2">
-            <Label>Tax %</Label>
-            <Input
-              type="number"
-              {...register("taxRate", { valueAsNumber: true })}
-              placeholder="5"
-              min={0}
-              max={100}
-              className="h-11 rounded-xl"
-            />
-            {errors.taxRate && <p className="text-sm text-red-500">{errors.taxRate.message}</p>}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Currency</Label>
+              <Select
+                value={currencyValue}
+                onValueChange={(v) => setValue("currency", v as Tenant["currency"])}
+              >
+                <SelectTrigger className="h-11 rounded-xl">
+                  <SelectValue placeholder="Select currency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="USD">USD ($)</SelectItem>
+                  <SelectItem value="EUR">EUR (€)</SelectItem>
+                  <SelectItem value="GBP">GBP (£)</SelectItem>
+                  <SelectItem value="MAD">MAD (د.م)</SelectItem>
+                  <SelectItem value="PKR">PKR (₨)</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.currency && (
+                <p className="text-sm text-red-500">
+                  {errors.currency.message as string}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Tax %</Label>
+              <Input
+                type="number"
+                {...register("taxRate", { valueAsNumber: true })}
+                placeholder="5"
+                min={0}
+                max={100}
+                className="h-11 rounded-xl"
+              />
+              {errors.taxRate && <p className="text-sm text-red-500">{errors.taxRate.message}</p>}
+            </div>
           </div>
 
           <Button type="submit" className="w-full h-11 rounded-xl text-base font-semibold" disabled={mutation.isPending}>

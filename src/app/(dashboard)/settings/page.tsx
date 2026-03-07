@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSettings, useUpdateSettings } from "@/hooks/useSettings";
-import { useSettingsStore } from "@/store/settingsStore";
-import { SettingsSchema, Settings } from "@/types/settings";
+import { useTenantQuery, useUpdateTenantMutation } from "@/hooks/useTenant";
+import { useTenantStore } from "@/store/tenantStore";
+import { TenantSchema, Tenant } from "@/types/tenant";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,24 +19,22 @@ import {
 import { toast } from "sonner";
 
 export default function SettingsPage() {
-  const { data, isLoading, error } = useSettings();
-  const updateSettings = useUpdateSettings();
+  const { data, isLoading, error } = useTenantQuery();
+  const updateTenant = useUpdateTenantMutation();
 
-  const settings = useSettingsStore((s) => s.settings);
-  const setSettings = useSettingsStore((s) => s.setSettings);
+  const tenant = useTenantStore((s) => s.tenant);
 
-  const [form, setForm] = useState<Settings>(settings);
+  const [form, setForm] = useState<Partial<Tenant>>({});
 
-  // Sync API → Zustand → Local form
+  // Sync API -> Local form
   useEffect(() => {
     if (data) {
       setForm(data);
-      setSettings(data);
     }
-  }, [data, setSettings]);
+  }, [data]);
 
   const handleSave = async () => {
-    const parsed = SettingsSchema.safeParse(form);
+    const parsed = TenantSchema.safeParse(form);
 
     if (!parsed.success) {
       toast.error("Validation error", {
@@ -46,9 +44,7 @@ export default function SettingsPage() {
     }
 
     try {
-      await updateSettings.mutateAsync(parsed.data);
-
-      setSettings(parsed.data);
+      await updateTenant.mutateAsync(parsed.data);
 
       toast.success("Settings saved", {
         description: "Your shop settings have been updated.",
@@ -78,9 +74,9 @@ export default function SettingsPage() {
         <div className="space-y-2">
           <Label>Shop Name</Label>
           <Input
-            value={form.shopName}
+            value={form.name || ""}
             onChange={(e) =>
-              setForm((s) => ({ ...s, shopName: e.target.value }))
+              setForm((s) => ({ ...s, name: e.target.value }))
             }
             className="rounded-xl"
           />
@@ -90,7 +86,7 @@ export default function SettingsPage() {
         <div className="space-y-2">
           <Label>Address</Label>
           <Input
-            value={form.address}
+            value={form.address || ""}
             onChange={(e) =>
               setForm((s) => ({ ...s, address: e.target.value }))
             }
@@ -105,7 +101,7 @@ export default function SettingsPage() {
             <Select
               value={form.currency}
               onValueChange={(v) =>
-                setForm((s) => ({ ...s, currency: v as Settings["currency"] }))
+                setForm((s) => ({ ...s, currency: v as Tenant["currency"] }))
               }
             >
               <SelectTrigger className="rounded-xl">
@@ -116,6 +112,7 @@ export default function SettingsPage() {
                 <SelectItem value="EUR">EUR (€)</SelectItem>
                 <SelectItem value="GBP">GBP (£)</SelectItem>
                 <SelectItem value="MAD">MAD (د.م)</SelectItem>
+                <SelectItem value="PKR">PKR (₨)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -126,7 +123,7 @@ export default function SettingsPage() {
               type="number"
               min={0}
               max={100}
-              value={form.taxRate}
+              value={form.taxRate || 0}
               onChange={(e) =>
                 setForm((s) => ({
                   ...s,
@@ -140,10 +137,10 @@ export default function SettingsPage() {
 
         <Button
           onClick={handleSave}
-          disabled={updateSettings.isPending}
+          disabled={updateTenant.isPending}
           className="w-full rounded-xl"
         >
-          {updateSettings.isPending ? "Saving..." : "Save Settings"}
+          {updateTenant.isPending ? "Saving..." : "Save Settings"}
         </Button>
       </div>
     </div>

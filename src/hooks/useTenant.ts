@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import  api  from "@/lib/api";
+import api from "@/lib/api";
 import { Tenant, TenantSchema } from "@/types/tenant";
 import { useTenantStore } from "@/store/tenantStore";
 
@@ -10,7 +10,7 @@ export const useTenantQuery = () => {
   const query = useQuery<Tenant>({
     queryKey: ["tenant"],
     queryFn: async () => {
-      const res = await api.get("/tenant/profile");
+      const res = await api.get("/tenants/me");
 
       // 🔐 Zod validation
       const parsed = TenantSchema.safeParse(res.data);
@@ -36,7 +36,7 @@ export const useUpdateTenantMutation = () => {
 
   return useMutation({
     mutationFn: async (payload: Partial<Tenant>) => {
-      const res = await api.put("/tenant/profile", payload);
+      const res = await api.patch("/tenants/me", payload);
 
       const parsed = TenantSchema.safeParse(res.data);
       if (!parsed.success) {
