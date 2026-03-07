@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const TenantSchema = z.object({
-  id: z.string(),
   name: z.string().min(1, "Shop name is required"),
   address: z.string().min(1, "Address is required").optional().nullable(),
   currency: z.enum(["USD", "EUR", "GBP", "MAD", "PKR"]).default("USD"),

@@ -34,25 +34,26 @@ export default function SettingsPage() {
   }, [data]);
 
   const handleSave = async () => {
-    const parsed = TenantSchema.safeParse(form);
+    const parsed = TenantSchema.safeParse({
+      name: form.name,
+      address: form.address || undefined,
+      currency: form.currency || undefined,
+      taxRate: Number(form.taxRate) || 0,
+    });
 
     if (!parsed.success) {
-      toast.error("Validation error", {
+      return toast.error("Validation error", {
         description: parsed.error.issues[0].message,
       });
-      return;
     }
 
     try {
       await updateTenant.mutateAsync(parsed.data);
 
-      toast.success("Settings saved", {
-        description: "Your shop settings have been updated.",
-      });
+      toast.success("Settings saved");
     } catch (err: any) {
       toast.error("Update failed", {
-        description:
-          err?.response?.data?.message || "Something went wrong",
+        description: err?.response?.data?.message || "Something went wrong",
       });
     }
   };
@@ -86,7 +87,7 @@ export default function SettingsPage() {
         <div className="space-y-2">
           <Label>Address</Label>
           <Input
-            value={form.address || ""}
+            value={form.address || undefined}
             onChange={(e) =>
               setForm((s) => ({ ...s, address: e.target.value }))
             }
@@ -99,7 +100,7 @@ export default function SettingsPage() {
           <div className="space-y-2">
             <Label>Currency</Label>
             <Select
-              value={form.currency}
+              value={form.currency || undefined}
               onValueChange={(v) =>
                 setForm((s) => ({ ...s, currency: v as Tenant["currency"] }))
               }
@@ -123,7 +124,7 @@ export default function SettingsPage() {
               type="number"
               min={0}
               max={100}
-              value={form.taxRate || 0}
+              value={Number(form.taxRate) || 0}
               onChange={(e) =>
                 setForm((s) => ({
                   ...s,
