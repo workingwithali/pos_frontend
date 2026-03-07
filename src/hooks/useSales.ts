@@ -43,9 +43,9 @@ export const useGetInvoice = (id: string, enabled = false) => {
   return useQuery({
     queryKey: salesKeys.invoice(id),
     queryFn: async () => {
-      // Could be returning HTML, a PDF blob, or just receipt data.
-      // Adjust standard type based on actual structure.
-      const { data } = await api.get(`/sales/${id}/invoice`);
+      const { data } = await api.get(`/sales/${id}/invoice`, {
+        responseType: "blob",
+      });
       return data;
     },
     enabled: !!id && enabled,
@@ -61,7 +61,6 @@ export const useCreateSale = () => {
     // Typically items [], paymentMethod, etc.
     mutationFn: async (payload: any): Promise<Sale> => {
       const { data } = await api.post("/sales", payload);
-      console.log(data)
       return data;
     },
     onSuccess: () => {

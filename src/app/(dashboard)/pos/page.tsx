@@ -12,7 +12,7 @@ import {
 } from "lucide-react"
 
 import { usePOSStore, Product, Sale } from "@/store/pos.store"
-import { useCreateSale } from "@/hooks/useSales"
+import { useCreateSale, useGetSale, useGetInvoice } from "@/hooks/useSales"
 import { useGetProducts } from "@/hooks/useProducts"
 import { useGetCategories } from "@/hooks/useCategoriesApi"
 import { toast } from "sonner"
@@ -39,7 +39,17 @@ export default function POSPage() {
   const [cart, setCart] = useState<CartItem[]>([])
   const [discount, setDiscount] = useState(0)
   const [invoiceOpen, setInvoiceOpen] = useState(false)
-  const [lastSale, setLastSale] = useState<Sale | null>(null)
+  const [lastSaleId, setLastSaleId] = useState<string | null>(null)
+
+  const { data: fullSale, isLoading: saleLoading } = useGetSale(
+    lastSaleId || "",
+    !!lastSaleId && invoiceOpen
+  )
+
+  const { data: invoiceBlob } = useGetInvoice(
+    lastSaleId || "",
+    !!lastSaleId && invoiceOpen
+  )
 
   const receiptRef = useRef<HTMLDivElement>(null)
 
@@ -114,7 +124,7 @@ export default function POSPage() {
 
       const response = await createSale.mutateAsync(payload)
 
-      setLastSale(response as any)
+      setLastSaleId(response.id!)
       setCart([])
       setDiscount(0)
       setInvoiceOpen(true)
@@ -126,7 +136,18 @@ export default function POSPage() {
   }
 
   const handlePrint = () => {
-    window.print()
+    if (invoiceBlob) {
+      const url = URL.createObjectURL(invoiceBlob)
+      const printWindow = window.open(url, "_blank")
+      if (printWindow) {
+        printWindow.addEventListener("load", () => {
+          printWindow.print()
+          URL.revokeObjectURL(url)
+        })
+      }
+    } else {
+      window.print()
+    }
   }
 
   return (
@@ -274,10 +295,10 @@ export default function POSPage() {
             </div>
           ))}
         </div>
-        
+
 
         <div className="p-4 border-t space-y-3">
-          
+
           <div className="flex justify-between text-sm items-center gap-2">
             <span>Discount (%)</span>
             <Input
@@ -350,32 +371,85 @@ export default function POSPage() {
             </DialogTitle>
           </DialogHeader>
 
-          {lastSale && (
-            <div className="space-y-3 text-sm">
-              <div ref={receiptRef}>
-                <p>
-                  Invoice: {lastSale.id}
-                </p>
-                <p>
-                  Date:{" "}
-                  {new Date(
-                    lastSale.createdAt || new Date()
-                  ).toLocaleString()}
-                </p>
-                <p className="font-bold">
-                  Total: $
-                  {Number(lastSale.totalAmount).toFixed(2)}
-                </p>
+          {saleLoading ? (
+            <div className="flex justify-center py-10">
+              <p className="text-muted-foreground animate-pulse">Loading receipt...</p>
+            </div>
+          ) : fullSale && (
+            <div className="space-y-4 text-sm">
+              <div ref={receiptRef} className="space-y-4 p-4 border rounded-xl bg-muted/10">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-bold text-base">Receipt</h3>
+                    <p className="text-xs text-muted-foreground">#{fullSale.invoiceNumber || fullSale.id}</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(fullSale.createdAt || new Date()).toLocaleString()}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  {fullSale.items.map((item: any, idx: number) => (
+                    <div key={idx} className="flex justify-between">
+                      <span>{item.product?.name || `Product ${idx + 1}`} x {item.quantity}</span>
+                      <span>${(Number(item.totalPrice || (item.unitPrice * item.quantity))).toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-t pt-2 space-y-1">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span>${Number(fullSale.subtotal).toFixed(2)}</span>
+                  </div>
+                  {Number(fullSale.discountAmount) > 0 && (
+                    <div className="flex justify-between text-red-500">
+                      <span>Discount</span>
+                      <span>-${Number(fullSale.discountAmount).toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span>Tax</span>
+                    <span>${Number(fullSale.taxAmount).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-lg pt-1">
+                    <span>Total</span>
+                    <span>${Number(fullSale.totalAmount).toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div className="text-center pt-4 border-t border-dashed">
+                  <p className="text-xs font-medium uppercase">{fullSale.paymentMethod}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Thank you for your purchase!</p>
+                </div>
               </div>
 
-              <Button
-                onClick={handlePrint}
-                variant="outline"
-                className="w-full"
-              >
-                <Printer className="h-4 w-4 mr-2" />
-                Print Receipt
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handlePrint}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  <Printer className="h-4 w-4 mr-2" />
+                  Print Receipt
+                </Button>
+                {invoiceBlob && (
+                  <Button
+                    onClick={() => {
+                      const url = URL.createObjectURL(invoiceBlob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `Invoice-${fullSale.invoiceNumber || fullSale.id}.pdf`
+                      a.click()
+                      URL.revokeObjectURL(url)
+                    }}
+                    variant="secondary"
+                    className="flex-1"
+                  >
+                    Download PDF
+                  </Button>
+                )}
+              </div>
             </div>
           )}
         </DialogContent>

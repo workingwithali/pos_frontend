@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { useGetSales, useGetInvoice } from "@/hooks/useSales";
+import { useGetSales, useGetInvoice, useGetSale } from "@/hooks/useSales";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +29,12 @@ const SalesPage = () => {
   // When selectedInvoiceId is set, it fetches the invoice text/html/data.
   // In many implementations it could be HTML that we dangerouslySetInnerHTML.
   // Alternatively, if it's JSON data, we would format it correctly here.
-  const { data: invoiceData, isLoading: isLoadingInvoice } = useGetInvoice(
+  const { data: fullSale, isLoading: isLoadingSale } = useGetSale(
+    selectedInvoiceId || "",
+    !!selectedInvoiceId
+  );
+
+  const { data: invoiceBlob, isLoading: isLoadingInvoice } = useGetInvoice(
     selectedInvoiceId || "",
     !!selectedInvoiceId
   );
@@ -43,25 +48,28 @@ const SalesPage = () => {
   };
 
   const handlePrint = () => {
-    const printWindow = window.open("", "_blank");
-    if (printWindow && invoiceData) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Print Invoice</title>
-            <style>
-              body { font-family: sans-serif; padding: 20px; }
-            </style>
-          </head>
-          <body>
-            ${typeof invoiceData === 'string' ? invoiceData : JSON.stringify(invoiceData, null, 2)}
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
+    if (invoiceBlob) {
+      const url = URL.createObjectURL(invoiceBlob);
+      const printWindow = window.open(url, "_blank");
+      if (printWindow) {
+        printWindow.addEventListener('load', () => {
+          printWindow.print();
+          URL.revokeObjectURL(url);
+        });
+      }
     } else {
-      toast.error("Failed to open print window or invoice not loaded.");
+      toast.error("Invoice PDF not ready yet.");
+    }
+  };
+
+  const handleDownload = () => {
+    if (invoiceBlob && fullSale) {
+      const url = URL.createObjectURL(invoiceBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Invoice-${fullSale.invoiceNumber || fullSale.id}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
     }
   };
 
@@ -118,7 +126,7 @@ const SalesPage = () => {
 
                       <TableCell className="text-muted-foreground">
                         {sale.createdAt && new Date(sale.createdAt).toLocaleString()}
-\                      </TableCell>
+                        \                      </TableCell>
 
                       <TableCell className="text-muted-foreground">
                         {sale.items.length} items
@@ -156,33 +164,54 @@ const SalesPage = () => {
 
       {/* Invoice Modal */}
       <Dialog open={!!selectedInvoiceId} onOpenChange={(open) => !open && closeInvoice()}>
-        <DialogContent 
-        className="sm:max-w-106.25"
-        aria-describedby={undefined}
+        <DialogContent
+          className="sm:max-w-106.25"
+          aria-describedby={undefined}
         >
           <DialogHeader>
             <DialogTitle>Invoice Details</DialogTitle>
           </DialogHeader>
 
-          <div className="p-4 bg-muted/20 border rounded-lg min-h-37.5 max-h-100 overflow-y-auto mt-2 text-sm whitespace-pre-wrap">
-            {isLoadingInvoice ? (
-              <div className="flex justify-center items-center h-full text-muted-foreground p-10">
+          <div className="p-4 bg-muted/20 border rounded-lg min-h-[300px] max-h-[500px] overflow-y-auto mt-2 text-sm">
+            {isLoadingSale ? (
+              <div className="flex justify-center items-center h-[200px] text-muted-foreground p-10">
                 <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                Loading Invoice...
+                Loading Details...
               </div>
-            ) : invoiceData ? (
-              // If the backend returns HTML string, it renders directly
-              // If it returns an object, we stringify it to show details
-              typeof invoiceData === "string" ? (
-                <div dangerouslySetInnerHTML={{ __html: invoiceData }} />
-              ) : (
-                <pre className="font-mono text-xs text-muted-foreground">
-                  {JSON.stringify(invoiceData, null, 2)}
-                </pre>
-              )
+            ) : fullSale ? (
+              <div className="space-y-4">
+                <div className="flex justify-between border-b pb-2">
+                  <span className="font-bold">Invoice: {fullSale.invoiceNumber}</span>
+                  <span className="text-muted-foreground">{new Date(fullSale.createdAt || "").toLocaleString()}</span>
+                </div>
+
+                <div className="space-y-2">
+                  {fullSale.items.map((item: any, idx: number) => (
+                    <div key={idx} className="flex justify-between">
+                      <span>{item.product?.name || 'Unknown Product'} x {item.quantity}</span>
+                      <span>${(Number(item.totalPrice)).toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-t pt-2 space-y-1">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span>${Number(fullSale.subtotal).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Tax</span>
+                    <span>${Number(fullSale.taxAmount).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between font-bold">
+                    <span>Total</span>
+                    <span>${Number(fullSale.totalAmount).toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="text-center text-muted-foreground p-10">
-                Invoice not found.
+                Sale details not found.
               </div>
             )}
           </div>
@@ -191,7 +220,10 @@ const SalesPage = () => {
             <Button variant="outline" onClick={closeInvoice}>
               Close
             </Button>
-            <Button onClick={handlePrint} disabled={isLoadingInvoice || !invoiceData}>
+            <Button variant="secondary" onClick={handleDownload} disabled={isLoadingInvoice || !invoiceBlob}>
+              Download PDF
+            </Button>
+            <Button onClick={handlePrint} disabled={isLoadingInvoice || !invoiceBlob}>
               <Printer className="h-4 w-4 mr-2" />
               Print
             </Button>
